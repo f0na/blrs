@@ -1,0 +1,5 @@
+.vercel
+target/
+.env*.local
+.env*
+ca.pem

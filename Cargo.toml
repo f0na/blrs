@@ -1,0 +1,42 @@
+[package]
+name = "vercel-rust-axum"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+vercel_runtime = { version = "2.4.0", features = ["axum"] }
+tokio = { version = "1", features = ["full"] }
+hyper = { version = "1", features = ["full"] }
+axum = { version = "0.8" }
+tower = { version = "0.5" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.26.0", features = ["v7"] }
+sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres", "derive", "migrate", "macros"] }
+redis = { version = "1.7.0", default-features = false, features = ["tokio-comp", "tokio-rustls-comp", "connection-manager", "tls-rustls-webpki-roots"] }
+vercel_blob = "0.1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+jsonwebtoken = "9"
+argon2 = "0.6.0"
+chrono = "0.4"
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+tower-http = { version = "0.7.1", features = ["cors"] }
+lettre = { version = "0.11.23", default-features = false, features = ["smtp-transport", "builder", "tokio1-rustls-tls"] }
+
+# 业务代码都在 src/ 下的 lib 里, api/ 下只有入口 bin。
+# 为什么必须这么分, 见 src/lib.rs 顶部的注释。
+[lib]
+name = "blrs"
+path = "src/lib.rs"
+
+# Each handler has to be specified as [[bin]]
+# Note that you need to provide unique names for each binary:
+[[bin]]
+name = "axum"
+path = "api/axum.rs"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = 3
