@@ -51,16 +51,16 @@ pub struct Pager<T> {
     pub page: i64,
     pub page_size: i64,
     pub total: i64,
-    pub list: Vec<T>,
+    pub arr: Vec<T>,
 }
 
 impl<T> Pager<T> {
-    pub fn new(page: i64, page_size: i64, total: i64, list: Vec<T>) -> Self {
+    pub fn new(page: i64, page_size: i64, total: i64, arr: Vec<T>) -> Self {
         Self {
             page,
             page_size,
             total,
-            list,
+            arr,
         }
     }
 }
