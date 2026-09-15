@@ -11,10 +11,10 @@ pub struct HomeArticleList {
     pub likes: i64,
     /// 浏览量**数量**。原始的逐条查看记录 (article_view) 只有管理端能读。
     pub views: i64,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub update_at: Option<String>,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
+    /// Unix 秒, 原样返回。
+    pub update_at: Option<i64>,
     pub tags: Vec<String>,
 }
 
@@ -30,9 +30,9 @@ pub struct ArticleDetail {
     pub likes: i64,
     /// 浏览量**数量**, 不是逐条记录。
     pub views: i64,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub update_at: Option<String>,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
+    /// Unix 秒, 原样返回。
+    pub update_at: Option<i64>,
     pub tags: Vec<String>,
 }

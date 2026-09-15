@@ -14,8 +14,8 @@ pub struct FriendLinkAdmin {
     pub intro: String,
     pub icon: Option<String>,
     pub feedback_status: LinkStatus,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
 }
 
 /// 管理端新增友链 (访客申请走公开接口, 形状相同)。

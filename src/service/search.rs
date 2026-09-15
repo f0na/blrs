@@ -15,7 +15,6 @@ use crate::model::err::{AppError, AppResult};
 use crate::model::handler::search::SearchArticle;
 use crate::repo;
 use crate::repo::article::ArticleListRow;
-use crate::util::fmt_ts;
 
 /// 索引名。写死而不是走环境变量: 全站只有一个索引, 改名字等于换一份数据。
 const INDEX_NAME: &str = "articles";
@@ -46,8 +45,8 @@ struct ArticleRecord {
     cover: Option<String>,
     synopsis: Option<String>,
     tags: Vec<String>,
-    /// 原始 Unix 秒。不存格式化好的字符串 —— 展示时区只该有一个地方说了算
-    /// (`util::DISPLAY_TZ_OFFSET_SECS`), 索引里固化一个时区会让以后换时区变成一次全量重建。
+    /// 原始 Unix 秒。和库里存的是同一个值 —— 索引里固化一个格式化好的串, 以后
+    /// 想换展示方式就得全量重建一遍。
     created_at: i64,
     updated_at: Option<i64>,
 }
@@ -154,8 +153,8 @@ pub async fn query(
             slug: hit.slug,
             cover: hit.cover,
             synopsis: hit.synopsis,
-            create_at: fmt_ts(hit.created_at),
-            update_at: hit.updated_at.map(fmt_ts),
+            create_at: hit.created_at,
+            update_at: hit.updated_at,
             tags: hit.tags,
         })
         .collect();

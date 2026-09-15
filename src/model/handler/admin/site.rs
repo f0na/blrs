@@ -26,6 +26,6 @@ pub struct SiteAdmin {
     pub icp: Option<String>,
     pub copyright: Option<String>,
     pub about: Option<String>,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
 }

@@ -9,7 +9,7 @@ use crate::model::handler::admin::auth::{LoginInput, LoginRes, MeRes, PasswordIn
 use crate::model::handler::{ApiResult, JsonBody, Res, body};
 use crate::service;
 use crate::service::auth::AdminClaims;
-use crate::util::{fmt_ts, trusted_client_ip};
+use crate::util::trusted_client_ip;
 
 /// 管理员登录。
 ///
@@ -57,7 +57,7 @@ pub async fn login(
 
     Ok(Json(Res::ok(LoginRes {
         token,
-        expire_at: fmt_ts(expire_at),
+        expire_at,
         password_set,
     })))
 }
@@ -76,6 +76,6 @@ pub async fn set_password(
 #[instrument(skip_all)]
 pub async fn me(Extension(claims): Extension<AdminClaims>) -> ApiResult<MeRes> {
     Ok(Json(Res::ok(MeRes {
-        expire_at: fmt_ts(claims.exp),
+        expire_at: claims.exp,
     })))
 }

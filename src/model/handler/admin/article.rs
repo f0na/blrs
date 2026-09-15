@@ -26,13 +26,13 @@ pub struct ArticleAdminList {
     pub likes: i64,
     pub views: i64,
     pub status: ArticleStatus,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub update_at: Option<String>,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
+    /// Unix 秒, 原样返回。
+    pub update_at: Option<i64>,
     /// 非空表示在回收站里。
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub deleted_at: Option<String>,
+    /// Unix 秒, 原样返回。
+    pub deleted_at: Option<i64>,
     pub tags: Vec<String>,
 }
 
@@ -47,12 +47,12 @@ pub struct ArticleAdminDetail {
     pub likes: i64,
     pub views: i64,
     pub status: ArticleStatus,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub update_at: Option<String>,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub deleted_at: Option<String>,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
+    /// Unix 秒, 原样返回。
+    pub update_at: Option<i64>,
+    /// Unix 秒, 原样返回。
+    pub deleted_at: Option<i64>,
     pub tags: Vec<String>,
 }
 
@@ -60,6 +60,6 @@ pub struct ArticleAdminDetail {
 #[derive(Debug, Clone, Serialize)]
 pub struct ArticleViewItem {
     pub id: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub view_at: String,
+    /// Unix 秒, 原样返回。
+    pub view_at: i64,
 }

@@ -16,6 +16,6 @@ pub struct SocialAdmin {
     pub social_type: SocialType,
     pub icon: Option<String>,
     pub value: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
 }

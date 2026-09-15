@@ -6,7 +6,6 @@ use crate::model::handler::site::{AboutSite, HomeSite, HomeSocial, SocialType};
 use crate::repo;
 use crate::repo::site::{SiteFields, SiteRow};
 use crate::repo::social::SocialRow;
-use crate::util::fmt_ts;
 
 const CACHE_KEY: &str = "blrs:site_ctx";
 const CACHE_TTL_SECS: u64 = 300;
@@ -38,7 +37,7 @@ impl SiteContext {
             icp: self.site.icp.clone(),
             copyright: self.site.copyright.clone(),
             about: self.site.about_content.clone(),
-            create_at: fmt_ts(self.site.created_at),
+            create_at: self.site.created_at,
         }
     }
 

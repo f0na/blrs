@@ -11,7 +11,7 @@ use crate::model::handler::{ApiResult, JsonBody, Res, body};
 use crate::repo;
 use crate::repo::social::SocialRow;
 use crate::service;
-use crate::util::{fmt_ts, optional_text, required_text};
+use crate::util::{optional_text, required_text};
 
 #[derive(Debug, Serialize)]
 pub struct IdRes {
@@ -24,7 +24,7 @@ fn to_admin(row: &SocialRow) -> SocialAdmin {
         social_type: parse_type(&row.social_type, &row.id),
         icon: row.icon.clone(),
         value: row.value.clone(),
-        create_at: fmt_ts(row.created_at),
+        create_at: row.created_at,
     }
 }
 

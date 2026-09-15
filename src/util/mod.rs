@@ -1,11 +1,7 @@
 use axum::http::HeaderMap;
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::Utc;
 
 use crate::model::err::{AppError, AppResult};
-
-/// 时间戳展示用的时区。库里统一存 Unix 秒 (UTC), 这里只影响格式化输出。
-/// 换时区只改这一个常量。
-const DISPLAY_TZ_OFFSET_SECS: i32 = 8 * 3600;
 
 /// 当前 Unix 秒。
 pub fn now_secs() -> i64 {
@@ -15,18 +11,6 @@ pub fn now_secs() -> i64 {
 /// 当前 Unix 毫秒。Blob 签发接口用的是毫秒。
 pub fn now_millis() -> i64 {
     Utc::now().timestamp_millis()
-}
-
-/// Unix 秒 -> `yyyy-MM-dd HH:mm:ss`。
-pub fn fmt_ts(secs: i64) -> String {
-    let tz = match FixedOffset::east_opt(DISPLAY_TZ_OFFSET_SECS) {
-        Some(tz) => tz,
-        None => return String::new(),
-    };
-    match DateTime::<Utc>::from_timestamp(secs, 0) {
-        Some(dt) => dt.with_timezone(&tz).format("%Y-%m-%d %H:%M:%S").to_string(),
-        None => String::new(),
-    }
 }
 
 fn header_str(headers: &HeaderMap, name: &str) -> Option<String> {
@@ -190,11 +174,6 @@ pub fn sanitize_filename(name: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn fmt_ts_formats_unix_secs() {
-        assert_eq!(fmt_ts(0), "1970-01-01 08:00:00");
-    }
 
     #[test]
     fn sanitize_filename_strips_path_traversal() {

@@ -13,8 +13,8 @@ pub struct LoginInput {
 #[derive(Debug, Clone, Serialize)]
 pub struct LoginRes {
     pub token: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub expire_at: String,
+    /// Unix 秒, 原样返回。
+    pub expire_at: i64,
     /// 为 false 说明尚未设置密码, 前端应当引导去设置。
     pub password_set: bool,
 }
@@ -26,5 +26,6 @@ pub struct PasswordInput {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct MeRes {
-    pub expire_at: String,
+    /// Unix 秒, 原样返回。
+    pub expire_at: i64,
 }

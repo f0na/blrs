@@ -18,7 +18,7 @@ fn to_admin(row: &repo::mail::MailConfigAdminRow) -> MailConfigAdmin {
         from_addr: row.from_addr.clone(),
         enable: row.enable,
         has_password: row.has_password,
-        create_at: crate::util::fmt_ts(row.created_at),
+        create_at: row.created_at,
     }
 }
 

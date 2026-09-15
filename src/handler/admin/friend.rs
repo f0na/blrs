@@ -9,7 +9,7 @@ use crate::model::handler::admin::friend::{DecideRes, FriendLinkAdmin, FriendLin
 use crate::model::handler::{ApiResult, JsonBody, ListQuery, Pager, Res, body};
 use crate::repo;
 use crate::service;
-use crate::util::{fmt_ts, optional_text, required_text, validate_email, validate_site_url};
+use crate::util::{optional_text, required_text, validate_email, validate_site_url};
 
 /// 注意: 目标结构体里**没有** email 字段, 所以这里想泄露也泄露不了。
 fn to_admin(row: &repo::friend::FriendLinkRow) -> FriendLinkAdmin {
@@ -20,7 +20,7 @@ fn to_admin(row: &repo::friend::FriendLinkRow) -> FriendLinkAdmin {
         intro: row.site_intro.clone(),
         icon: row.site_icon.clone(),
         feedback_status: parse_status(&row.feedback_status),
-        create_at: fmt_ts(row.created_at),
+        create_at: row.created_at,
     }
 }
 

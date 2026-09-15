@@ -9,7 +9,7 @@ use crate::model::handler::{ApiResult, JsonBody, Res, body};
 use crate::repo;
 use crate::repo::site::SiteRow;
 use crate::service;
-use crate::util::{fmt_ts, optional_text, required_text};
+use crate::util::{optional_text, required_text};
 
 fn to_admin(row: &SiteRow) -> SiteAdmin {
     SiteAdmin {
@@ -20,7 +20,7 @@ fn to_admin(row: &SiteRow) -> SiteAdmin {
         icp: row.icp.clone(),
         copyright: row.copyright.clone(),
         about: row.about_content.clone(),
-        create_at: fmt_ts(row.created_at),
+        create_at: row.created_at,
     }
 }
 

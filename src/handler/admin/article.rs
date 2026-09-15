@@ -12,7 +12,7 @@ use crate::model::handler::admin::article::{
 use crate::model::handler::{ApiResult, JsonBody, ListQuery, Pager, Res, body};
 use crate::repo;
 use crate::service;
-use crate::util::{fmt_ts, optional_text, required_text};
+use crate::util::{optional_text, required_text};
 
 #[derive(Debug, Serialize)]
 pub struct IdRes {
@@ -29,8 +29,8 @@ fn to_admin_list(row: &repo::article::ArticleListRow) -> ArticleAdminList {
         likes: row.likes,
         views: row.views,
         status: parse_status(&row.status),
-        create_at: fmt_ts(row.created_at),
-        update_at: row.updated_at.map(fmt_ts),
+        create_at: row.created_at,
+        update_at: row.updated_at,
         // 列表投影不带 deleted_at, 单独补一次会让每行多一次查询, 所以列表里恒为 None。
         // 回收站视图本身已经由 deleted 参数表达。
         deleted_at: None,
@@ -49,9 +49,9 @@ fn to_admin_detail(row: &repo::article::ArticleDetailRow) -> ArticleAdminDetail 
         likes: row.likes,
         views: row.views,
         status: parse_status(&row.status),
-        create_at: fmt_ts(row.created_at),
-        update_at: row.updated_at.map(fmt_ts),
-        deleted_at: row.deleted_at.map(fmt_ts),
+        create_at: row.created_at,
+        update_at: row.updated_at,
+        deleted_at: row.deleted_at,
         tags: row.tags.clone(),
     }
 }
@@ -243,7 +243,7 @@ pub async fn list_views(
         .iter()
         .map(|row| ArticleViewItem {
             id: row.id.clone(),
-            view_at: fmt_ts(row.viewed_at),
+            view_at: row.viewed_at,
         })
         .collect();
 

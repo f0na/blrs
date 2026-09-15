@@ -16,7 +16,7 @@ use crate::model::handler::{
 use crate::repo;
 use crate::service;
 use crate::util::{
-    fmt_ts, optional_text, required_text, trusted_client_ip, validate_email, validate_site_url,
+    optional_text, required_text, trusted_client_ip, validate_email, validate_site_url,
 };
 
 /// 把数据库行转成公开模型。标签和浏览量都已经在 SQL 里聚合好。
@@ -29,8 +29,8 @@ fn to_article_list(row: &repo::article::ArticleListRow) -> HomeArticleList {
         synopsis: row.synopsis.clone(),
         likes: row.likes,
         views: row.views,
-        create_at: fmt_ts(row.created_at),
-        update_at: row.updated_at.map(fmt_ts),
+        create_at: row.created_at,
+        update_at: row.updated_at,
         tags: row.tags.clone(),
     }
 }
@@ -161,8 +161,8 @@ pub async fn article_page(
             content: row.content,
             likes: row.likes,
             views: row.views,
-            create_at: fmt_ts(row.created_at),
-            update_at: row.updated_at.map(fmt_ts),
+            create_at: row.created_at,
+            update_at: row.updated_at,
             tags: row.tags,
         },
     })))

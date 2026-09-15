@@ -125,7 +125,7 @@ touch migrations/0002_add_something.sql
 - **两条友链处理路径的先后顺序是刻意相反的:**
   - `approve` — **先提交再发信**。审核结果必须落库, 邮件发不出去只把 `notified` 标成 `false`, 接口照样 200。
   - `refuse` — **先发信再删记录**。拒绝时记录本身就是要删掉的东西, 如果先删再发信而信又发失败了, 管理员手上就没有任何东西可以重试。所以发信失败会返回 502 并且**记录原样保留**, 改好配置再点一次即可。对方压根没留邮箱时没法通知, 直接删除。
-- **时间戳统一是 Unix 秒**, 展示时按 UTC+8 格式化 (改 `util::DISPLAY_TZ_OFFSET_SECS` 换时区)。
+- **时间戳统一是 Unix 秒, 原样返回, 后端不做任何加工。** 库里怎么存 (`BIGINT`) 就怎么出, 不格式化、不转时区、不换单位 —— 时区只是展示层的事, 放后端做等于把展示约定焊死在 API 里。
 - **每条数据库查询都必须带 `.persistent(false)`。** 应用的 `POSTGRES_URL` 是 Supabase 的 PgBouncer **事务池**(6543),而 sqlx 默认发**具名**预处理语句(`sqlx_s_1`...)。具名语句是会话级的,事务池会在事务之间把你换到别的后端,于是两个连接各自建的 `sqlx_s_1` 撞在同一个后端上,报 `prepared statement "sqlx_s_1" already exists`。
   注意 `statement_cache_capacity(0)` **治不了这个** —— 语句名带不带 `sqlx_s_` 前缀只取决于 `persistent`。必须用 `.persistent(false)` 让 sqlx 发匿名语句。
   代价是每条查询都要重新 Parse(没有语句缓存),这个体量可以忽略。`repo::tests::every_query_disables_persistent` 会守住这条规则,新查询漏了测试就红。

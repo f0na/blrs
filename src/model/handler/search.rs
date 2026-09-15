@@ -12,9 +12,9 @@ pub struct SearchArticle {
     pub slug: String,
     pub cover: Option<String>,
     pub synopsis: Option<String>,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub create_at: String,
-    /// 时间戳 yyyy-MM-dd HH:mm:ss
-    pub update_at: Option<String>,
+    /// Unix 秒, 原样返回。
+    pub create_at: i64,
+    /// Unix 秒, 原样返回。
+    pub update_at: Option<i64>,
     pub tags: Vec<String>,
 }
