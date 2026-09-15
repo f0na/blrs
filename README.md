@@ -12,6 +12,7 @@ Rust + axum 0.8, 部署在 Vercel Functions 上。Postgres 存数据, Valkey 只
 | GET | `/about` | 站点信息 (含关于正文) + 社交链接 |
 | GET | `/friends` | 站点信息 + 社交链接 + 友链列表 (`?page&page_size`) |
 | GET | `/articles/{id}` | 文章详情, 顺带记一次浏览 |
+| GET | `/articles/slug/{slug}` | 同上, 入口换成 slug。前端文章页 URL 是 `/<slug>`, 用这个就不必先拿 id |
 | GET | `/search` | 搜索文章 (`?q` 关键词, `&page&page_size`)。空关键词返回空列表, 不报错 |
 | POST | `/friends/apply` | 提交友链申请, 落库为待审核 |
 | POST | `/articles/{id}/like` | 点赞 |

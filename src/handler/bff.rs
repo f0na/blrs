@@ -131,25 +131,18 @@ pub struct ArticleRes {
     article: ArticleDetail,
 }
 
-#[instrument(skip_all, fields(article_id = %id))]
-pub async fn article_page(
-    State(st): State<AppState>,
-    Path(id): Path<String>,
-    headers: HeaderMap,
-) -> ApiResult<ArticleRes> {
-    let (ctx, row) = tokio::try_join!(
-        service::site::load(&st),
-        async { repo::article::detail_public(&st.conns.pg, &id).await.map_err(AppError::from) },
-    )?;
-
-    let Some(row) = row else {
-        return Err(AppError::not_found("文章不存在"));
-    };
-
+/// 详情页拿到行之后的公共部分: 记一次浏览, 再组装响应。
+/// 按 id 和按 slug 两个入口只有"怎么取行"不同, 到这里就合流了。
+async fn build_article_res(
+    st: &AppState,
+    ctx: service::site::SiteContext,
+    row: repo::article::ArticleDetailRow,
+    headers: &HeaderMap,
+) -> ArticleRes {
     // 计数是旁路: 内部任何失败都只记日志, 详情页照常返回。
-    service::article::record_view(&st, &row.id, &view_identity(&headers)).await;
+    service::article::record_view(st, &row.id, &view_identity(headers)).await;
 
-    Ok(Json(Res::ok(ArticleRes {
+    ArticleRes {
         site: ctx.home_site(),
         social: ctx.social(),
         article: ArticleDetail {
@@ -165,7 +158,49 @@ pub async fn article_page(
             update_at: row.updated_at,
             tags: row.tags,
         },
-    })))
+    }
+}
+
+#[instrument(skip_all, fields(article_id = %id))]
+pub async fn article_page(
+    State(st): State<AppState>,
+    Path(id): Path<String>,
+    headers: HeaderMap,
+) -> ApiResult<ArticleRes> {
+    let (ctx, row) = tokio::try_join!(
+        service::site::load(&st),
+        async { repo::article::detail_public(&st.conns.pg, &id).await.map_err(AppError::from) },
+    )?;
+
+    let Some(row) = row else {
+        return Err(AppError::not_found("文章不存在"));
+    };
+
+    Ok(Json(Res::ok(build_article_res(&st, ctx, row, &headers).await)))
+}
+
+/// 同一篇文章, 入口改成 slug —— 前端文章页的 URL 就是 `/<slug>`,
+/// 有这个入口才不用先拿 id 再换一次。
+#[instrument(skip_all, fields(article_slug = %slug))]
+pub async fn article_page_by_slug(
+    State(st): State<AppState>,
+    Path(slug): Path<String>,
+    headers: HeaderMap,
+) -> ApiResult<ArticleRes> {
+    let (ctx, row) = tokio::try_join!(
+        service::site::load(&st),
+        async {
+            repo::article::detail_public_by_slug(&st.conns.pg, &slug)
+                .await
+                .map_err(AppError::from)
+        },
+    )?;
+
+    let Some(row) = row else {
+        return Err(AppError::not_found("文章不存在"));
+    };
+
+    Ok(Json(Res::ok(build_article_res(&st, ctx, row, &headers).await)))
 }
 
 /// 访客提交友链申请, 落库为待审核。

@@ -64,6 +64,9 @@ fn router(state: AppState) -> Router {
         .route("/friends", get(handler::bff::friend_page))
         .route("/friends/apply", post(handler::bff::apply_friend_link))
         .route("/articles/{id}", get(handler::bff::article_page))
+        // 前端文章页的 URL 是 `/<slug>`, 所以详情的入口有两个: 按 id 和按 slug。
+        // `slug` 是静态段, 优先级高于 `/articles/{id}`, 两者不冲突。
+        .route("/articles/slug/{slug}", get(handler::bff::article_page_by_slug))
         .route("/articles/{id}/like", post(handler::bff::like_article))
         .route("/search", get(handler::search::articles));
 

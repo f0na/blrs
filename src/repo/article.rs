@@ -100,6 +100,25 @@ pub async fn detail_public(pg: &PgPool, id: &str) -> sqlx::Result<Option<Article
         .await
 }
 
+/// 按 slug 取公开详情, 给前端的文章页 URL (`/<slug>`) 用。
+///
+/// 谓词里的 `deleted_at IS NULL` 蕴含 `uniq_article_slug_live` 的部分索引条件,
+/// 所以这个查询走索引, 不是全表扫。`status = 'Pub'` 是索引外的过滤条件 ——
+/// 草稿也占着 slug, 撞上了只说明这篇还没发布。
+pub async fn detail_public_by_slug(
+    pg: &PgPool,
+    slug: &str,
+) -> sqlx::Result<Option<ArticleDetailRow>> {
+    let sql = format!(
+        "{DETAIL_PROJECTION} WHERE a.slug = $1 AND a.deleted_at IS NULL AND a.status = 'Pub'"
+    );
+    sqlx::query_as::<_, ArticleDetailRow>(sqlx::AssertSqlSafe(sql))
+        .persistent(false)
+        .bind(slug)
+        .fetch_optional(pg)
+        .await
+}
+
 // ---------------------------------------------------------------------------
 // 管理端读
 // ---------------------------------------------------------------------------
