@@ -360,6 +360,18 @@ pub async fn like(pg: &PgPool, id: &str) -> sqlx::Result<Option<i64>> {
     .await
 }
 
+/// 点赞数。过滤条件和 [`like`] 保持一致 —— 窗口内重复点赞时用它把当前值原样返回,
+/// 不能直接 `SELECT` 一个不过滤的行, 否则会给未发布的文章返回一个数。
+pub async fn likes_of(pg: &PgPool, id: &str) -> sqlx::Result<Option<i64>> {
+    sqlx::query_scalar(
+        "SELECT likes FROM article WHERE id = $1 AND deleted_at IS NULL AND status = 'Pub'",
+    )
+    .persistent(false)
+    .bind(id)
+    .fetch_optional(pg)
+    .await
+}
+
 // ---------------------------------------------------------------------------
 // 浏览记录
 // ---------------------------------------------------------------------------

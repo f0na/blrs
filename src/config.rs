@@ -25,7 +25,7 @@ pub const BLOB_ALLOWED_CONTENT_TYPES: &[&str] = &[
     "image/x-icon",
 ];
 
-/// 同一 IP 的浏览计数窗口: 1 小时。
+/// 同一 IP 的计数去重窗口: 1 小时。浏览和点赞共用。
 pub const VIEW_DEDUPE_SECS: u64 = 3600;
 
 /// 浏览记录保留天数。

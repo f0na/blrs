@@ -35,11 +35,11 @@ fn to_article_list(row: &repo::article::ArticleListRow) -> HomeArticleList {
     }
 }
 
-/// 详情页去重用的客户端标识。
+/// 计数去重用的客户端标识 (浏览和点赞共用)。
 ///
-/// 用可信来源而不是可伪造的 `x-forwarded-for` 首段: 否则轮换一下头就能把浏览量刷上去。
-/// 取不到可信来源时全部归到同一个 key, 相当于"这类请求 1 小时内只计一次"。
-fn view_identity(headers: &HeaderMap) -> String {
+/// 用可信来源而不是可伪造的 `x-forwarded-for` 首段: 否则轮换一下头就能把浏览量和
+/// 点赞数刷上去。取不到可信来源时全部归到同一个 key, 相当于"这类请求 1 小时内只计一次"。
+fn client_identity(headers: &HeaderMap) -> String {
     trusted_client_ip(headers).unwrap_or_else(|| "-".to_string())
 }
 
@@ -140,7 +140,7 @@ async fn build_article_res(
     headers: &HeaderMap,
 ) -> ArticleRes {
     // 计数是旁路: 内部任何失败都只记日志, 详情页照常返回。
-    service::article::record_view(st, &row.id, &view_identity(headers)).await;
+    service::article::record_view(st, &row.id, &client_identity(headers)).await;
 
     ArticleRes {
         site: ctx.home_site(),
@@ -243,8 +243,11 @@ pub struct LikeRes {
 pub async fn like_article(
     State(st): State<AppState>,
     Path(id): Path<String>,
+    headers: HeaderMap,
 ) -> ApiResult<LikeRes> {
-    let likes = repo::article::like(&st.conns.pg, &id)
+    // 去重规则和浏览一模一样 (同一 IP 1 小时内只累加一次), 见 service::article::record_like。
+    // 窗口内重复点赞不算错误, 返回的仍是当前点赞数。
+    let likes = service::article::record_like(&st, &id, &client_identity(&headers))
         .await?
         .ok_or_else(|| AppError::not_found("文章不存在或未发布"))?;
 

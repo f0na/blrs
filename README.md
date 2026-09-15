@@ -11,11 +11,11 @@ Rust + axum 0.8, 部署在 Vercel Functions 上。Postgres 存数据, Valkey 只
 | GET | `/home` | 站点信息 + 社交链接 + 文章列表 (`?page&page_size`) |
 | GET | `/about` | 站点信息 (含关于正文) + 社交链接 |
 | GET | `/friends` | 站点信息 + 社交链接 + 友链列表 (`?page&page_size`) |
-| GET | `/articles/{id}` | 文章详情, 顺带记一次浏览 |
+| GET | `/articles/{id}` | 文章详情, 顺带记一次浏览 (同一 IP 1 小时内只计一次) |
 | GET | `/articles/slug/{slug}` | 同上, 入口换成 slug。前端文章页 URL 是 `/<slug>`, 用这个就不必先拿 id |
 | GET | `/search` | 搜索文章 (`?q` 关键词, `&page&page_size`)。空关键词返回空列表, 不报错 |
 | POST | `/friends/apply` | 提交友链申请, 落库为待审核 |
-| POST | `/articles/{id}/like` | 点赞 |
+| POST | `/articles/{id}/like` | 点赞。去重规则同浏览, 窗口内重复点赞不报错, 返回的仍是当前点赞数 |
 
 ### 管理端
 
@@ -109,7 +109,7 @@ touch migrations/0002_add_something.sql
   redis-cli -u "$aiven_valkey_service_uri" DEL "blrs:login_fail:<你的IP>"
   ```
   所以设完密码后请把密码存进密码管理器, 别靠记忆。
-- **Valkey 是可选依赖。** 启动时连不上只会记 ERROR 并降级运行 (站点上下文每次回源数据库、浏览量不去重、登录封禁失效), 不会导致整个站点起不来。运行期故障同样只记 WARN 后穿透到 Postgres。
+- **Valkey 是可选依赖。** 启动时连不上只会记 ERROR 并降级运行 (站点上下文每次回源数据库、浏览量和点赞都不去重、登录封禁失效), 不会导致整个站点起不来。运行期故障同样只记 WARN 后穿透到 Postgres。
 - **封禁只认可信来源的 IP。** 日志里用的 `client_ip()` 取的是可伪造的 `x-forwarded-for` 首段 (仅供排查), 而封禁决策走 `trusted_client_ip()`, 只认平台写的头; 拿不到可信来源就放弃封禁判断 —— 宁可漏封, 也不能让人用一个伪造的头把任意 IP 封掉 90 天。**部署后请按下面"验证"的第 1 条实测一次。**
 - **图片不由后端中转。** 后端只签发一把限时 5 分钟、限 25MB、限常见图片类型的直传钥匙, 浏览器拿它直接传 Vercel Blob。
 - **`friend_link.email` 禁止被任何读接口返回。** 管理端列表用的结构体里干脆没有这个字段; 全代码库只有 `repo::friend::get_for_update` 会读它, 用于审核/拒绝时发通知邮件。
